@@ -6,14 +6,22 @@ use Fundevogel\Donut;
 
 function saveSVG(Kirby\Cms\Page $page, array $data)
 {
-    $thickness = $thickness ?? option('fundevogel.donuts.thickness');
-    $spacing = $spacing ?? option('fundevogel.donuts.spacing');
+    $thickness = $data['thickness'] ?? option('fundevogel.donuts.thickness');
+    $spacing = $data['spacing'] ?? option('fundevogel.donuts.spacing');
 
     $donut = new Donut(
         $data['entries'],
-        $data['thickness'],
-        $data['spacing']
+        $thickness,
+        $spacing,
     );
+
+    if (option('fundevogel.donuts.size') !== 100) {
+        $donut->setSize(option('fundevogel.donuts.size'));
+    }
+
+    if ($data['isPieChart'] === true) {
+        $donut->setPieChart(true);
+    }
 
     $content = $donut->getSVGElement();
 

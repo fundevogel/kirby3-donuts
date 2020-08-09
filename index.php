@@ -4,7 +4,12 @@
 
 use Fundevogel\Donut;
 
-function saveSVG(Kirby\Cms\Page $page, array $data)
+/**
+ * @param Kirby\Cms\Page $page
+ * @param array $data
+ * @return Kirby\Cms\File|string
+ */
+function render(Kirby\Cms\Page $page, array $data)
 {
     $thickness = $data['thickness'] ?? option('fundevogel.donuts.thickness');
     $spacing = $data['spacing'] ?? option('fundevogel.donuts.spacing');
@@ -17,6 +22,10 @@ function saveSVG(Kirby\Cms\Page $page, array $data)
 
     if (option('fundevogel.donuts.size') !== 100) {
         $donut->setSize(option('fundevogel.donuts.size'));
+    }
+
+    if ($data['classes'] !== '') {
+        $donut->setClasses($classes);
     }
 
     if ($data['isPieChart'] === true) {
@@ -70,18 +79,24 @@ Kirby::plugin('fundevogel/donuts', [
          * @param array $entries
          * @param float $thickness
          * @param float $spacing
+         * @param string classes
+         * @param bool $isPieChart
          * @return Kirby\Cms\File|string
          */
         'toDonut' => function (
             array $entries,
             float $thickness = null,
-            float $spacing = null
+            float $spacing = null,
+            string $classes = '',
+            bool $isPieChart = false,
         ) {
             try {
-                $file = saveSVG($this, [
+                $file = render($this, [
                     'entries' => $entries,
                     'thickness' => $thickness,
                     'spacing' => $spacing,
+                    'classes' => $classes,
+                    'isPieChart' => $isPieChart,
                 ]);
             } catch (Exception $e) {
                 throw $e;
@@ -95,21 +110,27 @@ Kirby::plugin('fundevogel/donuts', [
          * @param Kirby\Cms\Field $field
          * @param float $thickness
          * @param float $spacing
+         * @param string classes
+         * @param bool $isPieChart
          * @return Kirby\Cms\File|string
          */
         'toDonut' => function (
             Kirby\Cms\Field $field,
             float $thickness = null,
-            float $spacing = null
+            float $spacing = null,
+            string $classes = '',
+            bool $isPieChart = false
         ) {
             $page = $field->model();
             $entries = $field->toStructure()->toArray();
 
             try {
-                $file = saveSVG($page, [
+                $file = render($page, [
                     'entries' => $entries,
                     'thickness' => $thickness,
                     'spacing' => $spacing,
+                    'classes' => $classes,
+                    'isPieChart' => $isPieChart,
                 ]);
             } catch (Exception $e) {
                 throw $e;

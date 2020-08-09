@@ -2,7 +2,48 @@
 
 @include_once __DIR__ . '/vendor/autoload.php';
 
-use Fundevogel\Chart;
+use Fundevogel\Donut;
+
+function saveSVG(Kirby\Cms\Page $page, array $data)
+{
+    $thickness = $thickness ?? option('fundevogel.donuts.thickness');
+    $spacing = $spacing ?? option('fundevogel.donuts.spacing');
+
+    $donut = new Donut(
+        $data['entries'],
+        $data['thickness'],
+        $data['spacing']
+    );
+
+    $content = $donut->getSVGElement();
+
+    $file = new File([
+        'parent' => $page,
+        'filename' => 'chart-' . hash('md5', $content),
+    ]);
+
+    $file->update([
+        'template' => option('fundevogel.donuts.template'),
+    ]);
+
+    if (file_exists($file->root())) {
+        if (option('fundevogel.donuts.inline') === true) {
+            return svg($file);
+        }
+
+        return $file;
+    }
+
+    if (F::write($file->root(), $content)) {
+        if (option('fundevogel.donuts.inline') === true) {
+            return svg($file);
+        }
+
+        return $file;
+    }
+
+    throw new Exception('Couldn\'t create chart!');
+}
 
 Kirby::plugin('fundevogel/donuts', [
     'options' => [
@@ -29,11 +70,11 @@ Kirby::plugin('fundevogel/donuts', [
             float $spacing = null
         ) {
             try {
-                $file = (new Chart($this, [
+                $file = saveSVG($this, [
                     'entries' => $entries,
                     'thickness' => $thickness,
                     'spacing' => $spacing,
-                ]))->render();
+                ]);
             } catch (Exception $e) {
                 throw $e;
             }
@@ -57,11 +98,11 @@ Kirby::plugin('fundevogel/donuts', [
             $entries = $field->toStructure()->toArray();
 
             try {
-                $file = (new Chart($page, [
+                $file = saveSVG($page, [
                     'entries' => $entries,
                     'thickness' => $thickness,
                     'spacing' => $spacing,
-                ]))->render();
+                ]);
             } catch (Exception $e) {
                 throw $e;
             }

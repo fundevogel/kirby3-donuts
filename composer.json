@@ -25,11 +25,6 @@
         "friendsofphp/php-cs-fixer": "^2.14",
         "phpunit/phpunit": "^8.1"
     },
-    "autoload": {
-        "psr-4": {
-            "Fundevogel\\": "lib/"
-        }
-    },
     "autoload-dev": {
         "psr-4": {
             "Fundevogel\\Tests\\": "tests/"

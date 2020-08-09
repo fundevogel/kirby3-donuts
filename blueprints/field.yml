@@ -1,0 +1,25 @@
+type: structure
+fields:
+  title:
+    label:
+      en: Title
+      de: Titel
+    type: text
+    width: 1/2
+
+  value:
+    label:
+      en: Value
+      de: Wert
+    type: number
+    min: 0
+    max: 1
+    step: .01
+    width: 1/4
+
+  color:
+    label:
+      en: Color
+      de: Farbe
+    type: text
+    width: 1/4

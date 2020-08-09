@@ -1,0 +1,41 @@
+{
+    "name": "fundevogel/kirby3-donuts",
+    "description": "Kirby v3 wrapper for tiny-phpeanuts",
+    "type": "kirby-plugin",
+    "license": "MIT",
+    "homepage": "https://github.com/Fundevogel/kirby3-donuts#readme",
+    "authors": [
+        {
+            "name": "S1SYPHOS",
+            "email": "hello@twobrain.io",
+            "homepage": "https://twobrain.io"
+        }
+    ],
+    "support": {
+        "email": "support@twobrain.io",
+        "forum": "https://forum.getkirby.com",
+        "source": "https://github.com/Fundevogel/kirby3-donuts",
+        "issues": "https://github.com/Fundevogel/kirby3-donuts/issues"
+    },
+    "require": {
+        "fundevogel/tiny-phpeanuts": "^0.2.0",
+        "getkirby/composer-installer": "^1.1"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.14",
+        "phpunit/phpunit": "^8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fundevogel\\": "lib/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Fundevogel\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

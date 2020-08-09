@@ -1,0 +1,20 @@
+title: Donut
+
+accept: image/svg+xml
+
+fields:
+  title:
+    label: Title
+    type: text
+
+  caption:
+    label: Caption
+    type: text
+
+  altAttribute:
+    label: Alternative text
+    type: text
+
+  titleAttribute:
+    label: Title text
+    type: text

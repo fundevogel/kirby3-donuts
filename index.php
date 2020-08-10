@@ -25,7 +25,7 @@ function render(Kirby\Cms\Page $page, array $data)
     }
 
     if ($data['classes'] !== '') {
-        $donut->setClasses($classes);
+        $donut->setClasses($data['classes']);
     }
 
     if ($data['isPieChart'] === true) {

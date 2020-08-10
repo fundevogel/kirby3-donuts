@@ -88,7 +88,7 @@ Kirby::plugin('fundevogel/donuts', [
             float $thickness = null,
             float $spacing = null,
             string $classes = '',
-            bool $isPieChart = false,
+            bool $isPieChart = false
         ) {
             try {
                 $file = render($this, [

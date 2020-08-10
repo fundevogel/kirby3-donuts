@@ -36,7 +36,7 @@ function render(Kirby\Cms\Page $page, array $data)
 
     $file = new File([
         'parent' => $page,
-        'filename' => 'chart-' . hash('md5', $content),
+        'filename' => 'chart-' . hash('md5', $content) . '.svg',
     ]);
 
     $file->update([

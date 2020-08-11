@@ -3,18 +3,30 @@ title: Donut
 accept: image/svg+xml
 
 fields:
-  title:
-    label: Title
+  titleAttribute:
+    label:
+      de: Titeltext
+      en: Title attribute
+    icon: title
     type: text
+    help:
+      de: Dieser Text wird eingeblendet, wenn der Mauszeiger kurzzeitig über dem Bild bleibt.
+      en: This text is shown when the cursor hovers and stands still for a brief moment.
 
-  caption:
-    label: Caption
-    type: text
 
   altAttribute:
-    label: Alternative text
-    type: text
-
-  titleAttribute:
-    label: Title text
-    type: text
+    label:
+      de: Alternativtext
+      en: Alternative text
+    icon: alert
+    type: textarea
+    help:
+      de: >
+        Der Alternativtext wird für Bilder benötigt, um den Richtlinien für ein
+        <a href="http://rubikon-seminare.com/webaccessibility/alternative-text/"
+        target="_blank"> barrierefreies Internet</a> zu entsprechen. Beschreibe
+        das Bild daher möglichst genau.
+      en: >
+        The alternative text is required for images to meet
+        <a href="http://webaim.org/techniques/alttext" target="_blank">web
+        accessibility standards</a>. Enter a concise description of the image.

@@ -24,15 +24,25 @@ function render(Kirby\Cms\Page $page, array $data)
         $donut->setSize(option('fundevogel.donuts.size'));
     }
 
+    $donut->setPreferViewbox(option('fundevogel.donuts.viewbox'));
+
+    if ($data['backgroundColor'] !== 'transparent') {
+        $donut->setBackgroundColor($data['backgroundColor']);
+    }
+
     if ($data['classes'] !== '') {
         $donut->setClasses($data['classes']);
+    }
+
+    if (option('fundevogel.donuts.role') !== 'img') {
+        $donut->setRole(option('fundevogel.donuts.role'));
     }
 
     if ($data['isPieChart'] === true) {
         $donut->setPieChart(true);
     }
 
-    $content = $donut->getSVGElement();
+    $content = $donut->render();
 
     $file = new File([
         'parent' => $page,
@@ -67,6 +77,8 @@ Kirby::plugin('fundevogel/donuts', [
         'thickness' => 3,
         'spacing' => 0.005,
         'size' => 100,
+        'viewbox' => true,
+        'role' => 'img',
         'inline' => false,
         'template' => 'donut',
     ],
@@ -81,6 +93,7 @@ Kirby::plugin('fundevogel/donuts', [
          * @param float $spacing
          * @param string classes
          * @param bool $isPieChart
+         * @param string $backgroundColor
          * @return Kirby\Cms\File|string
          */
         'toDonut' => function (
@@ -88,7 +101,8 @@ Kirby::plugin('fundevogel/donuts', [
             float $thickness = null,
             float $spacing = null,
             string $classes = '',
-            bool $isPieChart = false
+            bool $isPieChart = false,
+            string $backgroundColor = 'transparent'
         ) {
             try {
                 $file = render($this, [
@@ -97,6 +111,7 @@ Kirby::plugin('fundevogel/donuts', [
                     'spacing' => $spacing,
                     'classes' => $classes,
                     'isPieChart' => $isPieChart,
+                    'backgroundColor' => $backgroundColor,
                 ]);
             } catch (Exception $e) {
                 throw $e;
@@ -112,6 +127,7 @@ Kirby::plugin('fundevogel/donuts', [
          * @param float $spacing
          * @param string classes
          * @param bool $isPieChart
+         * @param string $backgroundColor
          * @return Kirby\Cms\File|string
          */
         'toDonut' => function (
@@ -119,8 +135,9 @@ Kirby::plugin('fundevogel/donuts', [
             float $thickness = null,
             float $spacing = null,
             string $classes = '',
-            bool $isPieChart = false
-        ) {
+            bool $isPieChart = false,
+            string $backgroundColor = 'transparent'
+            ) {
             $page = $field->model();
             $entries = $field->toStructure()->toArray();
 
@@ -131,6 +148,7 @@ Kirby::plugin('fundevogel/donuts', [
                     'spacing' => $spacing,
                     'classes' => $classes,
                     'isPieChart' => $isPieChart,
+                    'backgroundColor' => $backgroundColor,
                 ]);
             } catch (Exception $e) {
                 throw $e;

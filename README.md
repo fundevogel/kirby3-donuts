@@ -65,9 +65,12 @@ Both methods return a file object of the newly created SVG chart for further use
 You may want to ..
 
 - change the thickness of the chart
-- the spacing between the segments
+- adjust spacing between the segments
 - add classes to the output SVG element
+- use width & height instead of `viewBox`
 - make it a pie chart
+- add `role`
+- change background color
 
 .. here's how:
 
@@ -75,13 +78,14 @@ You may want to ..
 $page->doDonut($data, $thickness, $spacing, $classes, $isPieChart);
 ```
 
-| Parameter     | Type   | Default   | Description                  |
-| ------------- | ------ | --------- | ---------------------------- |
-| `$data`       | array  | -         | data to be visualized        |
-| `$thickness`  | float  | see below | thickness of the chart       |
-| `$spacing`    | float  | see below | spacing between the segments |
-| `$classes`    | string | `''`      | classes applied to chart     |
-| `$isPieChart` | bool   | `false`   | make it a pie chart          |
+| Parameter          | Type   | Default   | Description                  |
+| ------------------ | ------ | --------- | ---------------------------- |
+| `$data`            | array  | -         | data to be visualized        |
+| `$thickness`       | float  | see below | thickness of the chart       |
+| `$spacing`         | float  | see below | spacing between the segments |
+| `$backgroundColor` | string | `''`      | classes applied to chart     |
+| `$classes`         | string | `''`      | classes applied to chart     |
+| `$isPieChart`      | bool   | `false`   | make it a pie chart          |
 
 Attention: The field methods omits the `$data` argument (which is gathered from the structure field).
 
@@ -89,13 +93,15 @@ Attention: The field methods omits the `$data` argument (which is gathered from 
 #### Configuration
 You may also change certain options from your `config.php` globally (`'fundevogel.donuts.optionName'`):
 
-| Option        | Type   | Default   | Description                |
-| ------------- | ------ | --------- | -------------------------- |
-| `'thickness'` | float  | `3`       | global default thickness   |
-| `'spacing'`   | float  | `0.005`   | global default spacing     |
-| `'size'`      | int    | `100`     | `viewBox` width & height   |
-| `'inline'`    | bool   | `false`   | output inline SVG directly |
-| `'template'`  | string | `'donut'` | chart file template        |
+| Option        | Type   | Default   | Description                       |
+| ------------- | ------ | --------- | --------------------------------- |
+| `'thickness'` | float  | `3`       | global default thickness          |
+| `'spacing'`   | float  | `0.005`   | global default spacing            |
+| `'size'`      | int    | `100`     | width & height dimensions         |
+| `'viewbox'`   | bool   | `true`    | viewBox instead of width & height |
+| `'role'`      | string | `'img'`   | role attribute                    |
+| `'inline'`    | bool   | `false`   | output inline SVG directly        |
+| `'template'`  | string | `'donut'` | chart file template               |
 
 
 ### Example

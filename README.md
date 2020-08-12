@@ -98,6 +98,16 @@ You may also change certain options from your `config.php` globally (`'fundevoge
 | `'template'`  | string | `'donut'` | chart file template        |
 
 
+### Example
+Adding some data points, it looks like this:
+
+![Donut Chart, powered by kirby3-donuts](./chart.svg)
+
+.. and with `$isPieChart` being `true`:
+
+![Donut Chart, powered by kirby3-donuts](./chart2.svg)
+
+
 ## Roadmap
 - [ ] Add tests
 

@@ -3,7 +3,7 @@
     "description": "Kirby v3 wrapper for tiny-phpeanuts",
     "type": "kirby-plugin",
     "license": "MIT",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "keywords": ["kirby3", "svg", "charts"],
     "homepage": "https://github.com/Fundevogel/kirby3-donuts#readme",
     "authors": [

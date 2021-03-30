@@ -15,7 +15,6 @@ namespace PhpCsFixer\Console;
 use PhpCsFixer\Console\Command\DescribeCommand;
 use PhpCsFixer\Console\Command\FixCommand;
 use PhpCsFixer\Console\Command\HelpCommand;
-use PhpCsFixer\Console\Command\ReadmeCommand;
 use PhpCsFixer\Console\Command\SelfUpdateCommand;
 use PhpCsFixer\Console\SelfUpdate\GithubClient;
 use PhpCsFixer\Console\SelfUpdate\NewVersionChecker;
@@ -35,8 +34,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class Application extends BaseApplication
 {
-    const VERSION = '2.16.4';
-    const VERSION_CODENAME = 'Yellow Bird';
+    const VERSION = '2.18.4-DEV';
+    const VERSION_CODENAME = 'Remote Void';
 
     /**
      * @var ToolInfo
@@ -55,7 +54,6 @@ final class Application extends BaseApplication
 
         $this->add(new DescribeCommand());
         $this->add(new FixCommand($this->toolInfo));
-        $this->add(new ReadmeCommand());
         $this->add(new SelfUpdateCommand(
             new NewVersionChecker(new GithubClient()),
             $this->toolInfo,

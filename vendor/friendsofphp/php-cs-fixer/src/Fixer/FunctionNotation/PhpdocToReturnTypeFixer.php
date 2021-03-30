@@ -12,7 +12,7 @@
 
 namespace PhpCsFixer\Fixer\FunctionNotation;
 
-use PhpCsFixer\AbstractFixer;
+use PhpCsFixer\AbstractPhpdocToTypeDeclarationFixer;
 use PhpCsFixer\DocBlock\Annotation;
 use PhpCsFixer\DocBlock\DocBlock;
 use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
@@ -29,7 +29,7 @@ use PhpCsFixer\Tokenizer\Tokens;
 /**
  * @author Filippo Tessarotto <zoeslam@gmail.com>
  */
-final class PhpdocToReturnTypeFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+final class PhpdocToReturnTypeFixer extends AbstractPhpdocToTypeDeclarationFixer implements ConfigurationDefinitionFixerInterface
 {
     /**
      * @var array<int, array<int, int|string>>
@@ -76,11 +76,6 @@ final class PhpdocToReturnTypeFixer extends AbstractFixer implements Configurati
     private $classRegex = '/^\\\\?[a-zA-Z_\\x7f-\\xff](?:\\\\?[a-zA-Z0-9_\\x7f-\\xff]+)*(?<array>\[\])*$/';
 
     /**
-     * @var array<string, bool>
-     */
-    private $returnTypeCache = [];
-
-    /**
      * {@inheritdoc}
      */
     public function getDefinition()
@@ -125,6 +120,19 @@ function bar() {}
                     new VersionSpecification(70100),
                     ['scalar_types' => false]
                 ),
+                new VersionSpecificCodeSample(
+                    '<?php
+final class Foo {
+    /**
+     * @return static
+     */
+    public function create($prototype) {
+        return new static($prototype);
+    }
+}
+',
+                    new VersionSpecification(80000)
+                ),
             ],
             null,
             'This rule is EXPERIMENTAL and [1] is not covered with backward compatibility promise. [2] `@return` annotation is mandatory for the fixer to make changes, signatures of methods without it (no docblock, inheritdocs) will not be fixed. [3] Manual actions are required if inherited signatures are not properly documented. [4] `@inheritdocs` support is under construction.'
@@ -147,7 +155,7 @@ function bar() {}
      * {@inheritdoc}
      *
      * Must run before FullyQualifiedStrictTypesFixer, NoSuperfluousPhpdocTagsFixer, PhpdocAlignFixer, ReturnTypeDeclarationFixer.
-     * Must run after CommentToPhpdocFixer, PhpdocIndentFixer, PhpdocScalarFixer, PhpdocScalarFixer, PhpdocToCommentFixer, PhpdocTypesFixer, PhpdocTypesFixer.
+     * Must run after AlignMultilineCommentFixer, CommentToPhpdocFixer, PhpdocIndentFixer, PhpdocScalarFixer, PhpdocScalarFixer, PhpdocToCommentFixer, PhpdocTypesFixer, PhpdocTypesFixer.
      */
     public function getPriority()
     {
@@ -180,6 +188,10 @@ function bar() {}
      */
     protected function applyFix(\SplFileInfo $file, Tokens $tokens)
     {
+        if (\PHP_VERSION_ID >= 80000) {
+            unset($this->skippedTypes['mixed']);
+        }
+
         for ($index = $tokens->count() - 1; 0 < $index; --$index) {
             if (
                 !$tokens[$index]->isGivenKind(T_FUNCTION)
@@ -189,11 +201,13 @@ function bar() {}
             }
 
             $funcName = $tokens->getNextMeaningfulToken($index);
+
             if ($tokens[$funcName]->equalsAny($this->excludeFuncNames, false)) {
                 continue;
             }
 
             $returnTypeAnnotation = $this->findReturnAnnotations($tokens, $index);
+
             if (1 !== \count($returnTypeAnnotation)) {
                 continue;
             }
@@ -233,7 +247,7 @@ function bar() {}
             }
 
             if ('static' === $returnType) {
-                $returnType = 'self';
+                $returnType = \PHP_VERSION_ID < 80000 ? 'self' : 'static';
             }
 
             if (isset($this->skippedTypes[$returnType])) {
@@ -266,7 +280,7 @@ function bar() {}
                 continue;
             }
 
-            if (!$this->isValidType($returnType)) {
+            if (!$this->isValidSyntax(sprintf('<?php function f():%s {}', $returnType))) {
                 continue;
             }
 
@@ -299,11 +313,14 @@ function bar() {}
         static $specialTypes = [
             'array' => [CT::T_ARRAY_TYPEHINT, 'array'],
             'callable' => [T_CALLABLE, 'callable'],
+            'static' => [T_STATIC, 'static'],
         ];
+
         $newTokens = [
             new Token([CT::T_TYPE_COLON, ':']),
             new Token([T_WHITESPACE, ' ']),
         ];
+
         if (true === $isNullable) {
             $newTokens[] = new Token([CT::T_NULLABLE_TYPE, '?']);
         }
@@ -311,15 +328,23 @@ function bar() {}
         if (isset($specialTypes[$returnType])) {
             $newTokens[] = new Token($specialTypes[$returnType]);
         } else {
-            foreach (explode('\\', $returnType) as $nsIndex => $value) {
-                if (0 === $nsIndex && '' === $value) {
-                    continue;
-                }
+            $returnTypeUnqualified = ltrim($returnType, '\\');
 
-                if (0 < $nsIndex) {
-                    $newTokens[] = new Token([T_NS_SEPARATOR, '\\']);
+            if (isset($this->scalarTypes[$returnTypeUnqualified]) || isset($this->versionSpecificTypes[$returnTypeUnqualified])) {
+                // 'scalar's, 'void', 'iterable' and 'object' must be unqualified
+                $newTokens[] = new Token([T_STRING, $returnTypeUnqualified]);
+            } else {
+                foreach (explode('\\', $returnType) as $nsIndex => $value) {
+                    if (0 === $nsIndex && '' === $value) {
+                        continue;
+                    }
+
+                    if (0 < $nsIndex) {
+                        $newTokens[] = new Token([T_NS_SEPARATOR, '\\']);
+                    }
+
+                    $newTokens[] = new Token([T_STRING, $value]);
                 }
-                $newTokens[] = new Token([T_STRING, $value]);
             }
         }
 
@@ -355,24 +380,5 @@ function bar() {}
         $doc = new DocBlock($tokens[$index]->getContent());
 
         return $doc->getAnnotationsOfType('return');
-    }
-
-    /**
-     * @param string $returnType
-     *
-     * @return bool
-     */
-    private function isValidType($returnType)
-    {
-        if (!\array_key_exists($returnType, $this->returnTypeCache)) {
-            try {
-                Tokens::fromCode(sprintf('<?php function f():%s {}', $returnType));
-                $this->returnTypeCache[$returnType] = true;
-            } catch (\ParseError $e) {
-                $this->returnTypeCache[$returnType] = false;
-            }
-        }
-
-        return $this->returnTypeCache[$returnType];
     }
 }

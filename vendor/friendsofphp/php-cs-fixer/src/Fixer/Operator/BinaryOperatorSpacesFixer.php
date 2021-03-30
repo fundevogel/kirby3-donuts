@@ -160,8 +160,8 @@ final class BinaryOperatorSpacesFixer extends AbstractFixer implements Configura
     public function configure(array $configuration = null)
     {
         if (
-            null !== $configuration &&
-            (\array_key_exists('align_equals', $configuration) || \array_key_exists('align_double_arrow', $configuration))
+            null !== $configuration
+            && (\array_key_exists('align_equals', $configuration) || \array_key_exists('align_double_arrow', $configuration))
         ) {
             $configuration = $this->resolveOldConfig($configuration);
         }
@@ -216,6 +216,42 @@ $foo = \json_encode($bar, JSON_PRESERVE_ZERO_FRACTION | JSON_PRETTY_PRINT);
 ',
                     ['operators' => ['|' => 'no_space']]
                 ),
+                new CodeSample(
+                    '<?php
+$array = [
+    "foo"            =>   1,
+    "baaaaaaaaaaar"  =>  11,
+];
+',
+                    ['operators' => ['=>' => 'single_space']]
+                ),
+                new CodeSample(
+                    '<?php
+$array = [
+    "foo" => 12,
+    "baaaaaaaaaaar"  => 13,
+];
+',
+                    ['operators' => ['=>' => 'align']]
+                ),
+                new CodeSample(
+                    '<?php
+$array = [
+    "foo" => 12,
+    "baaaaaaaaaaar"  => 13,
+];
+',
+                    ['operators' => ['=>' => 'align_single_space']]
+                ),
+                new CodeSample(
+                    '<?php
+$array = [
+    "foo" => 12,
+    "baaaaaaaaaaar"  => 13,
+];
+',
+                    ['operators' => ['=>' => 'align_single_space_minimal']]
+                ),
             ]
         );
     }
@@ -223,7 +259,7 @@ $foo = \json_encode($bar, JSON_PRESERVE_ZERO_FRACTION | JSON_PRETTY_PRINT);
     /**
      * {@inheritdoc}
      *
-     * Must run after ArrayIndentationFixer, ArraySyntaxFixer, ListSyntaxFixer, NoMultilineWhitespaceAroundDoubleArrowFixer, PowToExponentiationFixer, StandardizeNotEqualsFixer, StrictComparisonFixer.
+     * Must run after ArrayIndentationFixer, ArraySyntaxFixer, ListSyntaxFixer, NoMultilineWhitespaceAroundDoubleArrowFixer, NoUnsetCastFixer, PowToExponentiationFixer, StandardizeNotEqualsFixer, StrictComparisonFixer.
      */
     public function getPriority()
     {
@@ -457,14 +493,17 @@ $foo = \json_encode($bar, JSON_PRESERVE_ZERO_FRACTION | JSON_PRETTY_PRINT);
             }
         }
 
+        // @TODO: drop condition when PHP 7.0+ is required
         if (!\defined('T_SPACESHIP')) {
             unset($operators['<=>']);
         }
 
+        // @TODO: drop condition when PHP 7.0+ is required
         if (!\defined('T_COALESCE')) {
             unset($operators['??']);
         }
 
+        // @TODO: drop condition when PHP 7.4+ is required
         if (!\defined('T_COALESCE_EQUAL')) {
             unset($operators['??=']);
         }

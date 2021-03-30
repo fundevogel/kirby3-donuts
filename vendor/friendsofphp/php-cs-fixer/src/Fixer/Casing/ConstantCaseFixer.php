@@ -63,7 +63,10 @@ final class ConstantCaseFixer extends AbstractFixer implements ConfigurationDefi
     {
         return new FixerDefinition(
             'The PHP constants `true`, `false`, and `null` MUST be written using the correct casing.',
-            [new CodeSample("<?php\n\$a = FALSE;\n\$b = True;\n\$c = nuLL;\n")]
+            [
+                new CodeSample("<?php\n\$a = FALSE;\n\$b = True;\n\$c = nuLL;\n"),
+                new CodeSample("<?php\n\$a = FALSE;\n\$b = True;\n\$c = nuLL;\n", ['case' => 'upper']),
+            ]
         );
     }
 
@@ -101,8 +104,8 @@ final class ConstantCaseFixer extends AbstractFixer implements ConfigurationDefi
             }
 
             if (
-                $this->isNeighbourAccepted($tokens, $tokens->getPrevMeaningfulToken($index)) &&
-                $this->isNeighbourAccepted($tokens, $tokens->getNextMeaningfulToken($index))
+                $this->isNeighbourAccepted($tokens, $tokens->getPrevMeaningfulToken($index))
+                && $this->isNeighbourAccepted($tokens, $tokens->getNextMeaningfulToken($index))
             ) {
                 $tokens[$index] = new Token([$token->getId(), $fixFunction($token->getContent())]);
             }

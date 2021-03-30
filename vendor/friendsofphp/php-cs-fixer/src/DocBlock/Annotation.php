@@ -19,6 +19,8 @@ use PhpCsFixer\Preg;
  *
  * @author Graham Campbell <graham@alt-three.com>
  * @author Dariusz Rumiński <dariusz.ruminski@gmail.com>
+ *
+ * @final
  */
 class Annotation
 {
@@ -302,7 +304,7 @@ class Annotation
             }
 
             $matchingResult = Preg::match(
-                '{^(?:\s*\*|/\*\*)\s*@'.$name.'\s+'.self::REGEX_TYPES.'(?:[*\h\v].*)?$}sx',
+                '{^(?:\s*\*|/\*\*)\s*@'.$name.'\s+'.self::REGEX_TYPES.'(?:[*\h\v].*)?\r?$}sx',
                 $this->lines[0]->getContent(),
                 $matches
             );

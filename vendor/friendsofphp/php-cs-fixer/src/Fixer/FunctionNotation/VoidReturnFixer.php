@@ -50,11 +50,11 @@ final class VoidReturnFixer extends AbstractFixer
      * {@inheritdoc}
      *
      * Must run before PhpdocNoEmptyReturnFixer, ReturnTypeDeclarationFixer.
-     * Must run after SimplifiedNullReturnFixer.
+     * Must run after NoSuperfluousPhpdocTagsFixer, SimplifiedNullReturnFixer.
      */
     public function getPriority()
     {
-        return 15;
+        return 5;
     }
 
     /**
@@ -188,9 +188,9 @@ final class VoidReturnFixer extends AbstractFixer
         for ($i = $startIndex; $i < $endIndex; ++$i) {
             if (
                 // skip anonymous classes
-                ($tokens[$i]->isGivenKind(T_CLASS) && $tokensAnalyzer->isAnonymousClass($i)) ||
+                ($tokens[$i]->isGivenKind(T_CLASS) && $tokensAnalyzer->isAnonymousClass($i))
                  // skip lambda functions
-                ($tokens[$i]->isGivenKind(T_FUNCTION) && $tokensAnalyzer->isLambda($i))
+                || ($tokens[$i]->isGivenKind(T_FUNCTION) && $tokensAnalyzer->isLambda($i))
             ) {
                 $i = $tokens->getNextTokenOfKind($i, ['{']);
                 $i = $tokens->findBlockEnd(Tokens::BLOCK_TYPE_CURLY_BRACE, $i);

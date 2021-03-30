@@ -129,11 +129,11 @@ SAMPLE
      * {@inheritdoc}
      *
      * Must run before ArrayIndentationFixer.
-     * Must run after BracesFixer, CombineNestedDirnameFixer, ImplodeCallFixer, MethodChainingIndentationFixer, PowToExponentiationFixer.
+     * Must run after BracesFixer, CombineNestedDirnameFixer, FunctionDeclarationFixer, ImplodeCallFixer, MethodChainingIndentationFixer, NoUselessSprintfFixer, PowToExponentiationFixer.
      */
     public function getPriority()
     {
-        return -30;
+        return 30;
     }
 
     /**
@@ -141,7 +141,7 @@ SAMPLE
      */
     protected function applyFix(\SplFileInfo $file, Tokens $tokens)
     {
-        $expectedTokens = [T_LIST, T_FUNCTION];
+        $expectedTokens = [T_LIST, T_FUNCTION, CT::T_USE_LAMBDA];
         if (\PHP_VERSION_ID >= 70400) {
             $expectedTokens[] = T_FN;
         }
@@ -443,8 +443,8 @@ SAMPLE
             $prevIndex = $tokens->getPrevNonWhitespace($index - 1);
 
             if (
-                !$tokens[$prevIndex]->equals(',') && !$tokens[$prevIndex]->isComment() &&
-                ($this->configuration['after_heredoc'] || !$tokens[$prevIndex]->isGivenKind(T_END_HEREDOC))
+                !$tokens[$prevIndex]->equals(',') && !$tokens[$prevIndex]->isComment()
+                && ($this->configuration['after_heredoc'] || !$tokens[$prevIndex]->isGivenKind(T_END_HEREDOC))
             ) {
                 $tokens->clearAt($index - 1);
             }

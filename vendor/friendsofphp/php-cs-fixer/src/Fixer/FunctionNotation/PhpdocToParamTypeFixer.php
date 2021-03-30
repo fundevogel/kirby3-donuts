@@ -12,12 +12,9 @@
 
 namespace PhpCsFixer\Fixer\FunctionNotation;
 
-use PhpCsFixer\AbstractFixer;
+use PhpCsFixer\AbstractPhpdocToTypeDeclarationFixer;
 use PhpCsFixer\DocBlock\Annotation;
 use PhpCsFixer\DocBlock\DocBlock;
-use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
-use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
-use PhpCsFixer\FixerConfiguration\FixerOptionBuilder;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\FixerDefinition\VersionSpecification;
 use PhpCsFixer\FixerDefinition\VersionSpecificCodeSample;
@@ -29,7 +26,7 @@ use PhpCsFixer\Tokenizer\Tokens;
 /**
  * @author Jan Gantzert <jan@familie-gantzert.de>
  */
-final class PhpdocToParamTypeFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+final class PhpdocToParamTypeFixer extends AbstractPhpdocToTypeDeclarationFixer
 {
     /** @internal */
     const CLASS_REGEX = '/^\\\\?[a-zA-Z_\\x7f-\\xff](?:\\\\?[a-zA-Z0-9_\\x7f-\\xff]+)*(?<array>\[\])*$/';
@@ -40,7 +37,7 @@ final class PhpdocToParamTypeFixer extends AbstractFixer implements Configuratio
     /**
      * @var array{int, string}[]
      */
-    private $blacklistFuncNames = [
+    private $excludeFuncNames = [
         [T_STRING, '__clone'],
         [T_STRING, '__destruct'],
     ];
@@ -99,7 +96,7 @@ function my_foo($bar)
      * {@inheritdoc}
      *
      * Must run before NoSuperfluousPhpdocTagsFixer, PhpdocAlignFixer.
-     * Must run after CommentToPhpdocFixer, PhpdocIndentFixer, PhpdocScalarFixer, PhpdocToCommentFixer, PhpdocTypesFixer.
+     * Must run after AlignMultilineCommentFixer, CommentToPhpdocFixer, PhpdocIndentFixer, PhpdocScalarFixer, PhpdocToCommentFixer, PhpdocTypesFixer.
      */
     public function getPriority()
     {
@@ -117,19 +114,6 @@ function my_foo($bar)
     /**
      * {@inheritdoc}
      */
-    protected function createConfigurationDefinition()
-    {
-        return new FixerConfigurationResolver([
-            (new FixerOptionBuilder('scalar_types', 'Fix also scalar types; may have unexpected behaviour due to PHP bad type coercion system.'))
-                ->setAllowedTypes(['bool'])
-                ->setDefault(true)
-                ->getOption(),
-        ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function applyFix(\SplFileInfo $file, Tokens $tokens)
     {
         for ($index = $tokens->count() - 1; 0 < $index; --$index) {
@@ -138,7 +122,7 @@ function my_foo($bar)
             }
 
             $funcName = $tokens->getNextMeaningfulToken($index);
-            if ($tokens[$funcName]->equalsAny($this->blacklistFuncNames, false)) {
+            if ($tokens[$funcName]->equalsAny($this->excludeFuncNames, false)) {
                 continue;
             }
 
@@ -255,6 +239,10 @@ function my_foo($bar)
                 }
 
                 if (!('(' === $tokens[$variableIndex - 1]->getContent()) && $this->hasParamTypeHint($tokens, $variableIndex - 2)) {
+                    continue;
+                }
+
+                if (!$this->isValidSyntax(sprintf('<?php function f(%s $x) {}', $paramType))) {
                     continue;
                 }
 
